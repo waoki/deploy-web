@@ -95,7 +95,7 @@ if [ -z "$gitdir" ] || [ -z "$workdir" ] || [ -z "$branch" ]; then
   printhelp
 fi
 
-if [ ! -d "$workdir/builds ]; then
+if [ ! -d "$workdir/builds" ]; then
   echo "${workdir}/builds does not exist!"
   exit 2
 fi
