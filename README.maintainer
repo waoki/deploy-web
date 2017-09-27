@@ -1,0 +1,13 @@
+BUILDING
+--------
+
+To build test packages, install git-buildpackage, ensure your pbuilder is
+working, then:
+
+    BUILDER=pbuilder git-buildpackage  --git-ignore-branch --git-dist=stretch
+
+For release:
+
+    BUILDER=pbuilder git-buildpackage  --git-dist=stretch
+
+

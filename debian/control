@@ -1,0 +1,18 @@
+Source: deploy-web
+Section: vcs
+Priority: optional
+Maintainer: Will Aoki <waoki@umnh.utah.edu>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: <insert the upstream URL, if relevant>
+Vcs-Git: git@github.com:waoki/deploy-web
+Vcs-Browser: https://github.com/waoki/deploy-web
+
+Package: deploy-web
+Architecture: all
+Depends: ${misc:Depends}, git
+Description: Deploy static web site from Git repository
+ Server-side tool to deploy web sites from Git repositories. For use when
+ client-side tools are undesired or inapproriate and when lack of atomicity in
+ 'git checkout -f' is a problem.
+
