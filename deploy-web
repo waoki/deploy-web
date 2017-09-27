@@ -1,0 +1,116 @@
+#!/bin/sh
+
+checkout() {
+  hash=$1
+  shift
+  dstdir=$1
+  shift
+  gitdir=$1
+  shift
+  
+  if [ "x$dstdir" = x ] || [ "x$hash" = x ] || [ "x$gitdir" = x ]; then
+    echo 'Usage: checkout <hash> <directory> <git directory>'
+    return 2
+  fi
+
+  if [ ! -d "$dstdir" ]; then
+    echo 'Destination does not exist'
+    return 2
+  fi
+
+  if [ ! -d "${dstdir}/builds/${hash}" ]; then
+    mkdir "${dstdir}/builds/${hash}"
+    GIT_WORK_TREE="${dstdir}/builds/${hash}" git --git-dir ${gitdir} checkout -f test
+
+    if [ $? = 0 ]; then
+      # ok to replace
+      ln -sf "builds/${hash}" "$dstdir"/current
+      echo "Deployed test ${hash}"
+
+      find "$dstdir/builds" -mindepth 1 -maxdepth 1 -type d \! -name ${hash} -exec rm -rf {} \;
+      echo "Cleaned old builds"
+      return 0
+    else
+      echo "Deploy failed, cleaning up"
+      rm -rf "${dstdir}/builds/${hash}/"
+      return 1
+    fi
+  else
+    echo "Nothing to be done for $dstdir"
+    return 0
+  fi
+}
+
+printhelp() {
+cat << EOF
+Deploys web content from a git repository. This is a trivial server-side
+alternative to Capistrano, etc.
+
+Usage: $0 [OPTIONS]
+
+  --git-dir <directory.git>
+
+    Specify path to repository
+
+  --workdir <directory>
+
+    Working directory. Must contain a directory called 'builds'. This tool will
+    delete anything it doesn't manage from 'builds/' and will overwrite a
+    symlink named 'current'.
+
+    Untrusted users must not be able to write to the working directory, as
+    granting such access could permit them to overwrite or delete arbitrary
+    files.
+
+  --branch <branch name>
+
+    Branch / tag to deploy
+
+EOF
+  exit 2
+}
+
+while [ -n "$1" ]; do
+  case "$1" in
+    --git-dir)
+      shift
+      gitdir="$1"
+      ;;
+    -d|--workdir)
+      shift
+      workdir="$1"
+      ;;
+    -b|--branch)
+      shift
+      branch="$1"
+      ;;
+    *)
+      printhelp
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$gitdir" ] || [ -z "$workdir" ] || [ -z "$branch" ]; then
+  printhelp
+fi
+
+if [ ! -d "$workdir/builds ]; then
+  echo "${workdir}/builds does not exist!"
+  exit 2
+fi
+
+if [ ! -d "$gitdir/.git" ] && [ ! -f "$gitdir/HEAD" ]; then
+  echo "${gitdir} does not look like a git repository!"
+  exit 2
+fi
+
+rev_hash=`git --git-dir ${gitdir} rev-parse ${rev}`
+
+if [ "x${rev_hash}" != x`echo $rev_hash | tr -dc a-z0-9` ]; then
+  echo Unable to retrieve a sensible hash for branch!
+  exit 1
+fi
+
+checkout ${rev_hash} ${workdir}/ ${gitdir}
+
