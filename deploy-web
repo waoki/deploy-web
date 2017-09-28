@@ -7,7 +7,7 @@ checkout() {
   shift
   local gitdir=$1
   
-  if [ "x$dstdir" = x ] || [ "x$hash" = x ] || [ "x$gitdir" = x ]; then
+  if [ -z "$dstdir" ] || [ -z "$hash" ] || [ -z "$gitdir" ]; then
     echo 'Usage: checkout <hash> <directory> <git directory>'
     return 2
   fi
