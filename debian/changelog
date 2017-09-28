@@ -1,3 +1,10 @@
+deploy-web (0.2) unstable; urgency=medium
+
+  * Corrected error handling and branch identification so that it actually
+    works. 
+
+ -- Will Aoki <waoki@umnh.utah.edu>  Thu, 28 Sep 2017 12:35:10 -0600
+
 deploy-web (0.1) unstable; urgency=low
 
   * Initial Release.
