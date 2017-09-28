@@ -1,5 +1,6 @@
-deploy-web (0.4) UNRELEASED; urgency=medium
+deploy-web (0.4) unstable; urgency=medium
 
+  * More consistent comparisons
   * implement quiet operation
 
  -- Will Aoki <waoki@umnh.utah.edu>  Thu, 28 Sep 2017 13:01:52 -0600
