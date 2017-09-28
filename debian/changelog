@@ -1,3 +1,9 @@
+deploy-web (0.4) UNRELEASED; urgency=medium
+
+  * implement quiet operation
+
+ -- Will Aoki <waoki@umnh.utah.edu>  Thu, 28 Sep 2017 13:01:52 -0600
+
 deploy-web (0.3) unstable; urgency=medium
 
   * turned off debugging code

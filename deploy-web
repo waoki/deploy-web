@@ -19,15 +19,20 @@ checkout() {
 
   if [ ! -d "${dstdir}/builds/${hash}" ]; then
     mkdir "${dstdir}/builds/${hash}"
-    GIT_WORK_TREE="${dstdir}/builds/${hash}" git --git-dir ${gitdir} checkout -f test
+    GIT_WORK_TREE="${dstdir}/builds/${hash}" git --git-dir ${gitdir} checkout -f test $extraquiet
 
     if [ $? = 0 ]; then
       # ok to replace
       ln -sf "builds/${hash}" "$dstdir"/current
-      echo "Deployed test ${hash}"
+
+      if [ -z "$extraquiet" ]; then
+        echo "Deployed test ${hash}"
+      fi
 
       find "$dstdir/builds" -mindepth 1 -maxdepth 1 -type d \! -name ${hash} -exec rm -rf {} \;
-      echo "Cleaned old builds"
+      if [ -z "$extraquiet" ]; then
+        echo "Cleaned old builds"
+      fi
       return 0
     else
       echo "Deploy failed, cleaning up"
@@ -35,7 +40,9 @@ checkout() {
       return 1
     fi
   else
-    echo "Nothing to be done for $dstdir"
+    if [ -z "$quiet" ]; then
+      echo "Nothing to be done for $dstdir"
+    fi
     return 0
   fi
 }
@@ -65,6 +72,14 @@ Usage: $0 [OPTIONS]
 
     Branch / tag to deploy
 
+  -q
+
+    Only print messages if an update occurs
+
+  -qq
+
+    Only print messages if an error occurs
+
 EOF
   exit 2
 }
@@ -82,6 +97,15 @@ while [ -n "$1" ]; do
     -b|--branch)
       shift
       branch="$1"
+      ;;
+    -q)
+      quiet=-q
+      ;;
+    -qq)
+      # setting this to '-q' looks stupid but
+      # enables us to pass -q to git cleanly
+      quiet=-q
+      extraquiet=-q
       ;;
     *)
       printhelp
