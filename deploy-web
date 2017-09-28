@@ -1,12 +1,11 @@
 #!/bin/sh
 
 checkout() {
-  hash=$1
+  local hash=$1
   shift
-  dstdir=$1
+  local dstdir=$1
   shift
-  gitdir=$1
-  shift
+  local gitdir=$1
   
   if [ "x$dstdir" = x ] || [ "x$hash" = x ] || [ "x$gitdir" = x ]; then
     echo 'Usage: checkout <hash> <directory> <git directory>'
@@ -91,6 +90,7 @@ while [ -n "$1" ]; do
   shift
 done
 
+
 if [ -z "$gitdir" ] || [ -z "$workdir" ] || [ -z "$branch" ]; then
   printhelp
 fi
@@ -105,12 +105,12 @@ if [ ! -d "$gitdir/.git" ] && [ ! -f "$gitdir/HEAD" ]; then
   exit 2
 fi
 
-rev_hash=`git --git-dir ${gitdir} rev-parse ${rev}`
+rev_hash=`git --git-dir ${gitdir} rev-parse ${branch}`
 
-if [ "x${rev_hash}" != x`echo $rev_hash | tr -dc a-z0-9` ]; then
+if [ -z "${rev_hash}" ] || [ "x${rev_hash}" != x`echo $rev_hash | tr -dc a-z0-9` ]; then
   echo Unable to retrieve a sensible hash for branch!
   exit 1
 fi
 
-checkout ${rev_hash} ${workdir}/ ${gitdir}
+echo checkout ${rev_hash} ${workdir}/ ${gitdir}
 
