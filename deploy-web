@@ -112,5 +112,5 @@ if [ -z "${rev_hash}" ] || [ "x${rev_hash}" != x`echo $rev_hash | tr -dc a-z0-9`
   exit 1
 fi
 
-echo checkout ${rev_hash} ${workdir}/ ${gitdir}
+checkout ${rev_hash} ${workdir}/ ${gitdir}
 
