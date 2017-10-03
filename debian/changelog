@@ -1,3 +1,9 @@
+deploy-web (0.5) unstable; urgency=medium
+
+  * Check out correct branch
+
+ -- Will Aoki <waoki@umnh.utah.edu>  Tue, 03 Oct 2017 16:52:00 -0600
+
 deploy-web (0.4) unstable; urgency=medium
 
   * More consistent comparisons
