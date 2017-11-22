@@ -23,7 +23,7 @@ checkout() {
 
     if [ $? = 0 ]; then
       # ok to replace
-      ln -sf "builds/${hash}" "$dstdir"/current
+      ln -sfn "builds/${hash}" "$dstdir"/current
 
       if [ -z "$extraquiet" ]; then
         echo "Deployed ${hash}"
