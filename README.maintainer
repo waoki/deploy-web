@@ -4,10 +4,10 @@ BUILDING
 To build test packages, install git-buildpackage, ensure your pbuilder is
 working, then:
 
-    BUILDER=pbuilder git-buildpackage  --git-ignore-branch --git-dist=stretch
+    BUILDER=pbuilder gbp buildpackage --git-dist=stretch --git-ignore-branch
 
 For release:
 
-    BUILDER=pbuilder git-buildpackage  --git-dist=stretch
+    BUILDER=pbuilder gbp buildpackage  --git-dist=stretch --git-tag
 
 
