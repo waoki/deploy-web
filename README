@@ -1,0 +1,103 @@
+========
+OVERVIEW
+========
+
+deploy-web is a tool to do web-site deployment from a git repository.
+The general workflow is:
+
+  1. Make changes.
+  2. Push to a bare repository on the web server.
+
+deploy-web runs from cron to publish the latest version of the desired branch.
+This is slightly superior to working with a checked-out copy of the repo in the
+webroot because:
+
+  1. Git directories aren't exposed inside the webroot, so no configuration
+     is necessary to protect them.
+  2. Publishing a new revision is atomic.
+  3. Since the repo on the web server is bare, you can push to it.
+  4. If you push to the web server with SSH pubkeys, the web server never
+     stores or sees your credentials.
+
+This tool is inferior to other mechanisms because:
+
+  1. There is no orchestration for deployment to multiple web servers.
+  2. Unless hooks or external infrastructure is used, deployment is
+     push-and-wait, not instant.
+  3. If you have large files in git, the deployment process will be slow.
+  4. If the webroot filesystem provides snapshots but not dedupe, snapshots
+     will bloat massively. Incremental backups that care about mtime and inode
+     number but not content will also bloat.
+  5. The tool does not manage web server configuration.
+  6. No mechanism to manage .well-known is provided.
+
+This tool has minimal dependencies: it needs git, a Bourne shell (dash is
+fine), and the basic Unix utilities mkdir, rm, ln, and find.
+
+=============
+SETUP AND USE
+=============
+
+In your git repo:
+
+  1. Create a branch for web publication, e.g. "prod" or "test".
+
+On the web server:
+
+  1. Create a dedicated non-root user to run deploy-web.
+  2. Create a group for people who should be allowed to publish content. If you
+     have a central IAM system, this belongs there.
+  2. Clone your git repo to a new *bare* repo on the web server. Use
+     --shared=all to ensure git respects permissions.
+  3. Make the new clone owned by the deploy-web user and group-owned by the
+     publisher group. Set permissions for files 0460 and directories 2570.
+  4. Create a directory to hold active published content. This is the "working
+     directory".
+  5. Inside the working directory, create a directory called "builds".
+  6. Make the working directory and all its contents owned by the deploy-web
+     user. Set permissions for both to be 0755.
+  7. Set cron to run deploy-web periodically (e.g. every 15 minutes). Provide
+     deploy-web the paths to the bare git repo and the working directory, e.g.
+
+     deploy-web --git-dir /srv/web/repos/mywebsite.git \
+                --workdir /srv/web/publish/mywebsite \
+                --branch prod -q
+
+To publish:
+
+  1. Commit your changes.
+  2. Merge changes into the web-publication branch.
+  3. Push the web-publication branch to the web server.
+
+
+=====
+NOTES
+=====
+
+You can publish multiple sites, e.g. a production and test site, by using
+different branches in the same git repo. The sites will have different working
+directories but the same repo.
+
+The working directory is confusingly named. It should be called something along
+the lines of the "publication directory".
+
+The deploy-web script should run as its own dedicated user. It MUST NOT run as
+root and should probably not run as the same user as your web server.
+
+Users other than the deploy-web user MUST NOT be permitted to write to the
+working directory, as granting such access could permit them to overwrite or
+delete anything the deploy-web user is permitted to.
+
+If the working directory is on ZFS, it should be its own dedicated volume with
+snapshots disabled (typically "zfs set com.sun:auto-snapshot=false").
+
+If the web server is backed up, you should typically include the "builds"
+directory but exclude its contents.
+
+As a rule of thumb, the working directory can be up to twice the size of the
+published content.
+
+Although it can be set up in the web server configuration, this tool should
+probably offer the option to manage a symlink for .well-known.
+
+The Debian packaging ought to create a deploy-web user.
